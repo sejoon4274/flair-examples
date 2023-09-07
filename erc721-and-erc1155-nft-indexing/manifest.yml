@@ -4,8 +4,8 @@ defaultLogLevel: DEBUG
 
 cluster:
   id: dev
-  size: large
-namespace: nft-processors
+  size: small
+namespace: pomeriumx
 
 filterGroups:
   - id: default
@@ -16,19 +16,15 @@ filterGroups:
       - fromFile: ./contracts.csv
 
 indexers:
-  - chainId: 1
+  - chainId: 97
     enabled: true
     ingestionFilterGroup: default
     processingFilterGroup: default
     sources:
-      - endpoint: wss://chain-1.rpc.internal.flair.build
-      - endpoint: https://chain-1.rpc.internal.flair.build
+      - endpoint: wss://ws-nd-986-768-264.p2pify.com/52b881ec4a932a95466551ac92d17114
+      - endpoint: https://nd-986-768-264.p2pify.com/52b881ec4a932a95466551ac92d17114
 
 processors:
-  - id: erc721-transfers
-    abi: src/processors/erc721/transfer/abi.json
-    handler: src/processors/erc721/transfer/handler.ts
-  
   - id: erc1155-transfers
     abi: src/processors/erc1155/transfer/abi.json
     handler: src/processors/erc1155/transfer/handler.ts

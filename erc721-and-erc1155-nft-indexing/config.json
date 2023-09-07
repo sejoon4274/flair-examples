@@ -1,15 +1,15 @@
 {
   "cluster": "dev",
-  "namespace": "nft-processors",
+  "namespace": "sejoon",
   "indexers": [
     {
-      "chainId": 1,
+      "chainId": 97,
       "enabled": true,
       "ingestionFilterGroup": "default",
       "processingFilterGroup": "default",
       "sources": [
-        "wss://chain-1.rpc.internal.flair.build",
-        "https://chain-1.rpc.internal.flair.build"
+        "wss://ws-nd-986-768-264.p2pify.com/52b881ec4a932a95466551ac92d17114",
+        "https://nd-986-768-264.p2pify.com/52b881ec4a932a95466551ac92d17114"
       ]
     }
   ]
