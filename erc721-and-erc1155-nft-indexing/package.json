@@ -12,12 +12,14 @@
     "lint": "rome check .",
     "lint:fix": "pnpm lint --apply",
     "generate": "find ./ -type f -name '*.mustache' -exec sh -c 'mustache ./config.json \"$1\" > \"${1%.mustache}\"' _ {} \\;",
-    "generate-and-deploy": "pnpm run generate && flair deploy"
+    "generate:windows": "for /r %i in (*.mustache) do @mustache ./config.json \"%i\" \"%~ni\"",
+    "generate-and-deploy": "pnpm run generate && flair deploy",
+    "generate-and-deploy:windows": "pnpm run generate:windows && flair deploy"
   },
   "devDependencies": {
     "@types/node": "^20.3.2",
     "@types/prettier": "^3.0.0",
-    "flair-cli": "^1.19.3",
+    "flair-cli": "^1.19.9",
     "mustache": "^4.2.0",
     "prettier": "^3.0.3",
     "rome": "^12.1.3",
