@@ -3,8 +3,10 @@ import {
   ERC1155TransferSingleArgs,
   ERC721TransferArgs,
   EntityTypes,
+  ERC1155TokensMintedArgs,
   Token,
   Transfer,
+  TokensMinted,
 } from "../types";
 import { EventHandlerInput, database } from "flair-sdk";
 import { BigNumberish, BigNumber } from "ethers";
@@ -112,3 +114,69 @@ export const upsertTransfer = async function (
     amount: BigNumber.from(amount),
   });
 };
+
+export const upsertTokensMinted = async function (
+  event: EventHandlerInput<
+    ERC1155TokensMintedArgs>,
+  tokenIdMinted: string,
+  mintedTo: string,
+  uri: string,
+  quantityMinted: number
+): Promise<TokensMinted> {
+  return await database.upsert<TokensMinted>({
+    entityType: EntityTypes.MINT,
+    entityId:
+      `${event.chainId}:${event.log.address}:${event.txHash}:${event.log.localIndex}`.toLowerCase(),
+    horizon: event.horizon,
+    chainId: event.chainId,
+    blockTimestamp: event.blockTimestamp,
+    txHash: event.txHash,
+    collectionId: `${event.chainId}:${event.log.address}`.toLowerCase(),
+    tokenIdMinted,
+    mintedTo,
+    uri,
+    quantityMinted,
+  });
+};
+
+// export const upsertNewListing = async function (
+//   event: EventHandlerInput<
+//     MarketplaceV3NewListingArgs>,
+//   listingCreator: string,
+//   listingId: number,
+//   assetContract: string
+// ): Promise<NewListing> {
+//   return await database.upsert<NewListing>({
+//     entityType: EntityTypes.DIRECT_LISTINGS,
+//     entityId:
+//       `${event.chainId}:${event.log.address}:${event.txHash}:${event.log.localIndex}`.toLowerCase(),
+//     horizon: event.horizon,
+//     chainId: event.chainId,
+//     blockTimestamp: event.blockTimestamp,
+//     txHash: event.txHash,
+//     collectionId: `${event.chainId}:${event.log.address}`.toLowerCase(),
+//     listingCreator,
+//     listingId,
+//     assetContract
+//   });
+// };
+
+// export const upsertPlatformFeeInfoUpdated = async function (
+//   event: EventHandlerInput<
+//     MarketplaceV3PlatformFeeInfoUpdatedArgs>,
+//   platformFeeRecipient: string,
+//   platformFeeBps: number
+// ): Promise<PlatformFeeInfoUpdated> {
+//   return await database.upsert<PlatformFeeInfoUpdated>({
+//     entityType: EntityTypes.MINT,
+//     entityId:
+//       `${event.chainId}:${event.log.address}:${event.txHash}:${event.log.localIndex}`.toLowerCase(),
+//     horizon: event.horizon,
+//     chainId: event.chainId,
+//     blockTimestamp: event.blockTimestamp,
+//     txHash: event.txHash,
+//     collectionId: `${event.chainId}:${event.log.address}`.toLowerCase(),
+//     platformFeeRecipient,
+//     platformFeeBps
+//   });
+// };

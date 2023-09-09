@@ -4,7 +4,7 @@ defaultLogLevel: DEBUG
 
 cluster:
   id: {{ cluster }}
-  size: large
+  size: small
 namespace: {{ namespace }}
 
 filterGroups:
@@ -28,10 +28,6 @@ indexers:
   {{/indexers}}
 
 processors:
-  - id: erc721-transfers
-    abi: src/processors/erc721/transfer/abi.json
-    handler: src/processors/erc721/transfer/handler.ts
-  
   - id: erc1155-transfers
     abi: src/processors/erc1155/transfer/abi.json
     handler: src/processors/erc1155/transfer/handler.ts

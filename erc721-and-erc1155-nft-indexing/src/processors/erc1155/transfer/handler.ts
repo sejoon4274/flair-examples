@@ -7,9 +7,9 @@ import {
   Ownership,
   AssetType,
   Token,
-  TokenStandard,
+  TokenStandard, ERC1155TokensMintedArgs, TokensMinted,
 } from "../../../types";
-import { getOrCreateToken, upsertTransfer } from "../../../lib/tokens";
+import {getOrCreateToken, upsertTokensMinted, upsertTransfer} from "../../../lib/tokens";
 import { throttledPromiseAll } from "../../../lib/common";
 import { upsertOwnership } from "../../../lib/ownership";
 import { ERC1155_FUNCTIONS_ABI } from "../../../lib/erc1155";
@@ -18,7 +18,7 @@ import { ERC1155_FUNCTIONS_ABI } from "../../../lib/erc1155";
  * This processor receives ERC1155 SingleTransfer and BatchTransfer events
  */
 export async function processEvent(
-  event: EventHandlerInput<ERC1155TransferSingleArgs | ERC1155TransferBatchArgs>
+  event: EventHandlerInput<ERC1155TransferSingleArgs | ERC1155TransferBatchArgs | ERC1155TokensMintedArgs>
 ) {
   if (!event.parsed.args) {
     throw new Error("Missing event.parsed.args");
@@ -34,14 +34,24 @@ export async function processEvent(
   const transferUpserts = await generateTransferUpserts(event);
   const tokenUpserts = await generateTokenUpserts(event);
   const ownershipUpserts = await generateOwnershipUpserts(event);
+  const tokenMintedUpserts = await generateTokensMintedUpserts(event);
 
-  await throttledPromiseAll(tokenUpserts);
-  await throttledPromiseAll(transferUpserts);
-  await throttledPromiseAll(ownershipUpserts);
+  if(transferUpserts.length > 0) {
+    await throttledPromiseAll(tokenUpserts);
+  }
+  if(transferUpserts.length > 0) {
+    await throttledPromiseAll(transferUpserts);
+  }
+  if(ownershipUpserts.length > 0) {
+    await throttledPromiseAll(ownershipUpserts);
+  }
+  if(tokenMintedUpserts) {
+    await throttledPromiseAll(tokenMintedUpserts);
+  }
 }
 
 async function generateTransferUpserts(
-  event: EventHandlerInput<ERC1155TransferSingleArgs | ERC1155TransferBatchArgs>
+  event: EventHandlerInput<ERC1155TransferSingleArgs | ERC1155TransferBatchArgs | ERC1155TokensMintedArgs>
 ): Promise<(() => Promise<Transfer>)[]> {
   const transferUpserts: (() => Promise<Transfer>)[] = [];
 
@@ -73,7 +83,7 @@ async function generateTransferUpserts(
 }
 
 async function generateTokenUpserts(
-  event: EventHandlerInput<ERC1155TransferSingleArgs | ERC1155TransferBatchArgs>
+  event: EventHandlerInput<ERC1155TransferSingleArgs | ERC1155TransferBatchArgs | ERC1155TokensMintedArgs>
 ): Promise<(() => Promise<Token>)[]> {
   const tokenUpserts: (() => Promise<Token>)[] = [];
   if (event.parsed.name === "TransferSingle") {
@@ -108,7 +118,7 @@ async function generateTokenUpserts(
 }
 
 async function generateOwnershipUpserts(
-  event: EventHandlerInput<ERC1155TransferSingleArgs | ERC1155TransferBatchArgs>
+  event: EventHandlerInput<ERC1155TransferSingleArgs | ERC1155TransferBatchArgs | ERC1155TokensMintedArgs>
 ): Promise<(() => Promise<Ownership>)[]> {
   const contract = await blockchain.getContract(
     event.chainId,
@@ -149,4 +159,20 @@ async function generateOwnershipUpserts(
   }
 
   return ownershipUpserts;
+}
+
+async function generateTokensMintedUpserts(
+  event: EventHandlerInput<ERC1155TransferSingleArgs | ERC1155TransferBatchArgs | ERC1155TokensMintedArgs>
+): Promise<(() => Promise<TokensMinted>)[]> {
+  const tokenMintedUpserts: (() => Promise<TokensMinted>)[] = [];
+
+  if (event.parsed.name === "TokensMinted") {
+    const evt = event as EventHandlerInput<ERC1155TokensMintedArgs>;
+    const args = evt.parsed.args as ERC1155TokensMintedArgs;
+    tokenMintedUpserts.push(() =>
+      upsertTokensMinted(evt, args.tokenIdMinted, args.mintedTo, args.uri, args.quantityMinted)
+    );
+  }
+
+  return tokenMintedUpserts;
 }

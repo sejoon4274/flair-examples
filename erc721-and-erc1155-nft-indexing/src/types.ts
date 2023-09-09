@@ -5,6 +5,8 @@ export enum EntityTypes {
   COLLECTION = "Collection",
   TOKEN = "Token",
   METADATA = "Metadata",
+  MINT = "TokensMinted",
+  DIRECT_LISTINGS = "NewListing",
   TRANSFER = "Transfer",
   OWNERSHIP = "Ownership",
 }
@@ -67,6 +69,28 @@ export type Transfer = Entity<{
   amount: BigNumber;
 }>;
 
+export type TokensMinted = Entity<{
+  chainId: number;
+  blockTimestamp: number;
+  txHash: string;
+  collectionId: string;
+  tokenIdMinted: string;
+  uri: string;
+  mintedTo: string;
+  quantityMinted: number;
+}>;
+
+// export type NewListing = Entity<{
+//   listingCreator: string;
+//   listingId: number;
+//   assetContract: string;
+// }>;
+//
+// export type PlatformFeeInfoUpdated = Entity<{
+//   platformFeeRecipient: string;
+//   platformFeeBps: number;
+// }>;
+
 export enum TokenStandard {
   ERC721 = "ERC721",
   ERC1155 = "ERC1155",
@@ -97,3 +121,21 @@ export type ERC1155TransferBatchArgs = {
   tokenIds: string[];
   amounts: BigNumber[];
 };
+
+export type ERC1155TokensMintedArgs = {
+  mintedTo: string;
+  tokenIdMinted: string;
+  uri: string;
+  quantityMinted: number;
+};
+
+// export type MarketplaceV3NewListingArgs = {
+//   listingCreator: string;
+//   listingId: number;
+//   assetContract: string;
+// };
+//
+// export type MarketplaceV3PlatformFeeInfoUpdatedArgs = {
+//   platformFeeRecipient: string;
+//   platformFeeBps: number;
+// };

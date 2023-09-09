@@ -1,6 +1,6 @@
 {
   "cluster": "dev",
-  "namespace": "sejoon",
+  "namespace": "pomeriumx",
   "indexers": [
     {
       "chainId": 97,
